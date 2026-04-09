@@ -25,6 +25,7 @@ class DetailsViewModel @Inject constructor(
 
     private val bookId: String = savedStateHandle.toRoute<Details>().bookId
 
+    // loader
     init {
         loadBook()
     }
