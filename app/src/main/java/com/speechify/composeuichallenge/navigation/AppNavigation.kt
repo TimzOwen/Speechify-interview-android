@@ -1,41 +1,38 @@
 package com.speechify.composeuichallenge.navigation
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.speechify.composeuichallenge.ui.screens.details.DetailsScreen
-import com.speechify.composeuichallenge.ui.screens.home.HomeScreen
+import androidx.navigation.toRoute
+import com.speechify.composeuichallenge.repository.Details
+import com.speechify.composeuichallenge.ui.screens.details.BooksDetailsScreen
+import com.speechify.composeuichallenge.ui.screens.home.BooksHomeScreen
 
-
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun AppNavigation() {
 
     val navController = rememberNavController()
 
-    SharedTransitionLayout {
-        NavHost(navController, startDestination = Home) {
+    NavHost(navController, startDestination = HomeRoute) {
 
-            composable<Home> {
-                HomeScreen(
-                    sharedTransitionScope = this@SharedTransitionLayout,
-                    animatedVisibilityScope = this@composable,
-                    onNavigate = { bookId ->
-                        navController.navigate(Details(bookId))
-                    }
-                )
-            }
-
-            composable<Details> {
-                DetailsScreen(
-                    sharedTransitionScope = this@SharedTransitionLayout,
-                    animatedVisibilityScope = this@composable,
-                    onBack = { navController.popBackStack() }
-                )
-            }
+        composable<HomeRoute> {
+            BooksHomeScreen(
+                onNavigate = { imageUrl, author, desc ->
+                    navController.navigate(DetailsRoute(imageUrl, author, desc))
+                }
+            )
         }
+
+        composable<DetailsRoute> {
+            val args = it.toRoute<DetailsRoute>()
+            BooksDetailsScreen(
+                imageUrl = args.imageUrl,
+                author = args.author,
+                desc = args.desc
+            )
+        }
+
     }
 }

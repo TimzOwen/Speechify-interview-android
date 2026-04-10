@@ -2,14 +2,15 @@ package com.speechify.composeuichallenge.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.speechify.composeuichallenge.data.Book
 import com.speechify.composeuichallenge.repository.BooksRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import okio.IOException
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,36 +18,45 @@ class HomeViewModel @Inject constructor(
     private val repository: BooksRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private val _booksUIState = MutableStateFlow<BooksUiState>(BooksUiState.Loading)
+    val booksUIState: StateFlow<BooksUiState> = _booksUIState.asStateFlow()
 
-    private var allBooks: List<Book> = emptyList()
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    private var searchJob: Job? = null
 
     init {
         loadBooks()
     }
 
-    fun onSearchQueryChanged(query: String) {
-        val filteredBooks = if (query.isBlank()) {
-            allBooks
-        } else {
-            allBooks.filter { it.name.contains(query, ignoreCase = true) }
-        }
-        _uiState.value = HomeUiState.Success(
-            books = filteredBooks,
-            searchQuery = query
-        )
-    }
-
     private fun loadBooks() {
         viewModelScope.launch {
             try {
-                allBooks = repository.getBooks()
-                _uiState.value = HomeUiState.Success(books = allBooks)
+                val books = repository.getBooks()
+                _booksUIState.value = BooksUiState.Success(books)
             } catch (e: IOException) {
-                _uiState.value = HomeUiState.Error(e.message.orEmpty())
+                _booksUIState.value = BooksUiState.Error(e.message.toString())
             }
         }
     }
 
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(300)
+            try {
+                _booksUIState.value = BooksUiState.Loading
+                val books = if (query.isEmpty()) {
+                    repository.getBooks()
+                } else {
+                    repository.searchBook(query)
+                }
+                _booksUIState.value = BooksUiState.Success(books)
+            } catch (e: IOException) {
+                _booksUIState.value = BooksUiState.Error(e.message.toString())
+            }
+        }
+    }
 }
