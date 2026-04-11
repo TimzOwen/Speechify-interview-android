@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
@@ -50,12 +52,13 @@ fun BookScreen(
                 .padding(18.dp)
         ) {
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                placeholder = { Text("Search book") },
+                leadingIcon = { Icons.Default.Search },
                 value = searchQuery,
-                onValueChange = {
-                    it = searchQuery,
-                    viewModel.searchBooksQuery(searchQuery)
-                                },
+                onValueChange = { viewModel.searchBooksQuery(it) },
             )
 
             when (booksUiState) {
