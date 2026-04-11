@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -56,7 +57,7 @@ fun BookScreen(
                     .fillMaxWidth()
                     .padding(8.dp),
                 placeholder = { Text("Search book") },
-                leadingIcon = { Icons.Default.Search },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 value = searchQuery,
                 onValueChange = { viewModel.searchBooksQuery(it) },
             )
