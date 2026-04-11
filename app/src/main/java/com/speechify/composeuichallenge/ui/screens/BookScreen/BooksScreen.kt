@@ -78,7 +78,7 @@ fun BookScreen(
 fun LoadBooks(books: List<Book>, onClick: (book: Book) -> Unit) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         items(books) { book ->
-            BooksCardComponent(book) { onClick(book) }
+            BooksCardComponent(book = book) { onClick(book) }
         }
     }
 }
